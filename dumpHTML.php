@@ -31,7 +31,7 @@ php dumpHTML.php [options...]
 	--oom-adj <N>        set /proc/<pid>/oom_adj
 	--show-titles        write each article title to stdout
 	--munge-title <HOW>  available munging algorithms: none, md5, windows
-    --group <group>      use the specified user group to read articles
+	--group <group>      use the specified user group to read articles
 
 ENDS;
 
@@ -45,8 +45,8 @@ if ( $profiling ) {
 	define( 'MW_CMDLINE_CALLBACK', 'wfSetupDump' );
 	function wfSetupDump() {
 		global $wgProfileToDatabase, $wgProfileSampleRate;
+		Profiler::instance();
 		// Override disabled profiling in maintenance scripts
-		Profiler::setInstance( new Profiler() );
 		$wgProfileToDatabase = false;
 		$wgProfileSampleRate = 1;
 	}
