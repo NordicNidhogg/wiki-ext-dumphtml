@@ -643,6 +643,7 @@ class DumpHTML {
 		global $wgRightsUrl, $wgRightsText, $wgCopyrightIcon, $wgEnableSidebarCache;
 		global $wgGenerateThumbnailOnParse, $wgValidSkinNames, $wgFavicon;
 		global $wgDisableCounters;
+		global $wgLocalFileRepo, $wgForeignFileRepos;
 
 		if ( !$this->setupDone ) {
 			$wgHooks['GetLocalURL'][] =& $this;
@@ -657,6 +658,14 @@ class DumpHTML {
 			$this->oldScriptPath = $wgScriptPath;
 			$this->oldFavicon = $wgFavicon;
 			$wgValidSkinNames['offline'] = 'Offline';
+
+			$wgLocalFileRepo['transformVia404'] = false;
+			$wgLocalFileRepo['thumbScriptUrl'] = false;
+
+			foreach( $wgForeignFileRepos as $repo ) {
+				$repo['transformVia404'] = false;
+				$repo['thumbScriptUrl'] = false;
+			}
 		}
 
 		if ( is_null( $currentDepth ) ) {
@@ -1134,8 +1143,6 @@ class DumpHTML_ProxyRepo {
 		$this->directory = $directory;
 		$this->url = $url;
 		$this->name = $backend->getName();
-		$this->backend->thumbScriptUrl = false;
-		$this->backend->transformVia404 = false;
 		$this->backendUrl = $backend->getZoneUrl( 'public' );
 	}
 
