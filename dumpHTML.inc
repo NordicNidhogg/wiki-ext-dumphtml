@@ -1106,6 +1106,7 @@ class DumpHTML_ProxyRepoGroup extends RepoGroup {
 	var $dump, $backendRG;
 
 	function __construct( $dump, RepoGroup $backendRG ) {
+		parent::__construct( null, null );
 		$this->dump = $dump;
 		$this->backendRG = $backendRG;
 		$backendRG->initialiseRepos();
