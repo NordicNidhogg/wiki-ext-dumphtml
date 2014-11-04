@@ -27,7 +27,6 @@ php dumpHTML.php [options...]
 	--interlang          allow interlanguage links
 	--image-snapshot     copy all images used to the destination directory
 	--compress           generate compressed version of the html pages
-	--udp-profile <N>    profile 1/N rendering operations using ProfilerSimpleUDP
 	--oom-adj <N>        set /proc/<pid>/oom_adj
 	--show-titles        write each article title to stdout
 	--munge-title <HOW>  available munging algorithms: none, md5, windows
@@ -37,24 +36,8 @@ ENDS;
 
 define( 'MW_HTML_FOR_DUMP', 1 );
 
-$optionsWithArgs = array( 's', 'd', 'e', 'k', 'checkpoint', 'slice', 'udp-profile', 'oom-adj', 'munge-title', 'group' );
+$optionsWithArgs = array( 's', 'd', 'e', 'k', 'checkpoint', 'slice', 'oom-adj', 'munge-title', 'group' );
 $options = array( 'help' );
-$profiling = false;
-
-if ( $profiling ) {
-	define( 'MW_CMDLINE_CALLBACK', 'wfSetupDump' );
-	function wfSetupDump() {
-		global $wgProfileToDatabase, $wgProfileSampleRate;
-		Profiler::instance();
-		// Override disabled profiling in maintenance scripts
-		$wgProfileToDatabase = false;
-		$wgProfileSampleRate = 1;
-	}
-}
-
-if ( in_array( '--udp-profile', $argv ) ) {
-	define( 'MW_FORCE_PROFILE', 1 );
-}
 
 $IP = getenv( 'MW_INSTALL_PATH' );
 if ( $IP === false ) {
@@ -125,7 +108,6 @@ $wgHTMLDump = new DumpHTML( array(
 	'noOverwrite' => $options['no-overwrite'],
 	'compress' => $options['compress'],
 	'noSharedDesc' => $options['no-shared-desc'],
-	'udpProfile' => $options['udp-profile'],
 	'showTitles' => $options['show-titles'],
 	'group' => $options['group'],
 	'mungeTitle' => $options['munge-title'],
@@ -171,9 +153,3 @@ if ( isset( $options['debug'] ) ) {
 		printf( "%9d %s\n", $size, $name );
 	}
 }
-
-if ( $profiling ) {
-	echo Profiler::instance()->getOutput();
-}
-
-

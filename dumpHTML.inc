@@ -76,9 +76,6 @@ class DumpHTML {
 	# Max page ID, lazy initialised
 	var $maxPageID = false;
 
-	# UDP profiling
-	var $udpProfile, $udpProfileCounter = 0, $udpProfileInit = false;
-
 	# Debugging options
 	var $showTitles = false;
 
@@ -481,7 +478,8 @@ class DumpHTML {
 			print $title->getPrefixedDBkey() . "\n";
 		}
 
-		$this->profile();
+		// In case we're profiling
+		Profiler::instance()->setProfileID( 'dumpHTML' );
 
 		$this->rawPages = array();
 		$text = $this->getArticleHTML( $title );
@@ -498,7 +496,7 @@ class DumpHTML {
 		$this->writeArticle( $title, $text );
 
 		# Do raw pages
-		$this->mkdir( "{$this->dest}/raw", 0755 );
+		wfMkdirParents( "{$this->dest}/raw", 0755 );
 		foreach( $this->rawPages as $record ) {
 			list( $file, $ftitle, $params ) = $record;
 
@@ -525,7 +523,8 @@ class DumpHTML {
 
 	/** Write the given text to the file identified by the given title object */
 	function writeArticle( $title, $text ) {
-		wfProfileIn( __METHOD__ );
+		$profile = new ProfileSection( __METHOD__ );
+
 		$filename = $this->getHashedFilename( $title );
 
 		$fullName = "{$this->dest}/$filename";
@@ -551,7 +550,7 @@ class DumpHTML {
 					$this->escapeForVBScript( $fullName ) ) );
 			}
 		} else {
-			if ( !$this->mkdir( $fullDir ) ) {
+			if ( !wfMkdirParents( $fullDir ) ) {
 				print "Error: unable to create directory '$fullDir'.\n";
 			}
 			#wfSuppressWarnings();
@@ -562,7 +561,6 @@ class DumpHTML {
 		if ( !$success ) {
 			die("Can't open file '$fullName' for writing.\nCheck permissions or use another destination (-d).\n");
 		}
-		wfProfileOut( __METHOD__ );
 	}
 
 	/** Escape a UTF-8 string for VBScript's Unescape() */
@@ -583,7 +581,7 @@ class DumpHTML {
 	/** Copy a directory recursively, not including .svn */
 	function copyDirectory( $source, $dest ) {
 		if ( !is_dir( $dest ) ) {
-			if ( !mkdir( $dest ) ) {
+			if ( !wfMkdirParents( $dest ) ) {
 				echo "Warning: unable to create directory \"$dest\"\n";
 				return false;
 			}
@@ -617,10 +615,10 @@ class DumpHTML {
 			return;
 		}
 		echo "Initialising destination directory...\n";
-		if ( !$this->mkdir( "{$this->dest}/skins" ) ) {
+		if ( !wfMkdirParents( "{$this->dest}/skins" ) ) {
 			throw new MWException( "Unable to create destination skin directory." );
 		}
-		if ( !$this->mkdir( "{$this->dest}/temp" ) ) {
+		if ( !wfMkdirParents( "{$this->dest}/temp" ) ) {
 			throw new MWException( "Unable to create destination temp directory." );
 		}
 
@@ -765,7 +763,7 @@ class DumpHTML {
 	 */
 	function makeUrlSnapshot( $url ) {
 		global $wgServer;
-		$this->mkdir( "{$this->dest}/misc" );
+		wfMkdirParents( "{$this->dest}/misc" );
 		$destName = urldecode( basename( $url ) );
 		$destPath = "{$this->dest}/misc/$destName";
 		if ( !file_exists( $destPath ) ) {
@@ -845,7 +843,15 @@ ENDTEXT;
 	function findImages( $text ) {
 		global $wgDumpImages;
 		$parser = xml_parser_create( 'UTF-8' );
-		xml_set_element_handler( $parser, 'wfDumpStartTagHandler', 'wfDumpEndTagHandler' );
+		xml_set_element_handler( $parser,
+			function( $parser, $name, $attribs ) use ( $wgDumpImages ) {
+				if ( $name == 'IMG' && isset( $attribs['SRC'] ) ) {
+					$wgDumpImages[$attribs['SRC']] = true;
+				}
+			},
+			function( $parser, $name ) {
+			}
+		);
 
 		$wgDumpImages = array();
 		xml_parse( $parser, $text );
@@ -879,7 +885,7 @@ ENDTEXT;
 		$destLoc = "$destDirBase/$rel";
 		#print "Copying $sourceLoc to $destLoc\n";
 		if ( !$this->pathExists( $destLoc ) ) {
-			$this->mkdir( dirname( $destLoc ), 0755 );
+			wfMkdirParents( dirname( $destLoc ), 0755 );
 			if ( !copy( $sourceLoc, $destLoc ) ) {
 				print "Warning: unable to copy $sourceLoc to $destLoc\n";
 			}
@@ -1082,40 +1088,8 @@ ENDTEXT;
 		return $this->maxPageID;
 	}
 
-	function profile() {
-		global $wgRequestTime, $wgRUstart;
-
-		if ( !$this->udpProfile ) {
-			return;
-		}
-		if ( !$this->udpProfileInit ) {
-			$this->udpProfileInit = true;
-			$this->udpProfileCounter = 0;
-		} elseif ( $this->udpProfileCounter == 1 % $this->udpProfile ) {
-			Profiler::instance()->logData();
-			Profiler::setInstance( new ProfilerStub( array() ) );
-		}
-		if ( $this->udpProfileCounter == 0 ) {
-			$wgRequestTime = microtime( true );
-			$wgRUstart = getrusage();
-			Profiler::setInstance( new ProfilerSimpleUDP( array() ) );
-			Profiler::instance()->setProfileID( 'dumpHTML' );
-		}
-		$this->udpProfileCounter = ( $this->udpProfileCounter + 1 ) % $this->udpProfile;
-	}
-
 	function debug( $text ) {
 		print "$text\n";
-	}
-
-	function mkdir( $dir ) {
-		//if ( wfIsWindows() ) {
-			return wfMkdirParents( $dir, 0755, __METHOD__ );
-		/*} else {
-			$dir = escapeshellarg( $dir );
-			`mkdir -p -- $dir`;
-			return true;
-		}*/
 	}
 }
 
@@ -1222,7 +1196,7 @@ class DumpHTML_ProxyRepo {
 				return;
 			}
 			if ( !is_dir( dirname( $dest ) ) ) {
-				$this->dump->mkdir( dirname( $dest ) );
+				wfMkdirParents( dirname( $dest ) );
 			}
 
 			#$this->dump->debug( "Copying $source to $dest" );
@@ -1325,7 +1299,7 @@ class DumpHTML_ProxyFile {
 			}
 		} else {
 			if ( !is_dir( dirname( $dest ) ) ) {
-				$this->dump->mkdir( dirname( $dest ) );
+				wfMkdirParents( dirname( $dest ) );
 			}
 
 			$tmpFile = $this->repo->getLocalCopy( $source );
@@ -1335,19 +1309,6 @@ class DumpHTML_ProxyFile {
 		}
 	}
 }
-
-
-/** XML parser callback */
-function wfDumpStartTagHandler( $parser, $name, $attribs ) {
-	global $wgDumpImages;
-
-	if ( $name == 'IMG' && isset( $attribs['SRC'] ) ) {
-		$wgDumpImages[$attribs['SRC']] = true;
-	}
-}
-
-/** XML parser callback */
-function wfDumpEndTagHandler( $parser, $name ) {}
 
 /**
  * Workaround for bug 30921; extends FauxRequest to return a fake current URL.

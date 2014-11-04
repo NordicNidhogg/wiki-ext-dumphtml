@@ -146,7 +146,6 @@ while (os.getppid() > 1):
 			msg(wiki + ' articles ' + slice)
 			dumpHTML(outputFile, wiki,"--no-shared-desc", "--image-snapshot",
 				"--interlang","-d",dest,"--slice",slice,
-				"--udp-profile","50",
 				"--oom-adj", "6",
 				#"--show-titles",
 				"--checkpoint",checkpoint,"--no-overwrite")
@@ -163,7 +162,6 @@ while (os.getppid() > 1):
 			msg(wiki + ' shared ' + slice)
 			dumpHTML(outputFile, wiki,"--shared-desc", "--image-snapshot",
 				"--interlang","-d",dest,"--slice",slice,
-				"--udp-profile", "50",
 				"--oom-adj", "4",
 				"--checkpoint",checkpoint,"--no-overwrite")
 			if isDone(checkpoint, 'shared image'):
