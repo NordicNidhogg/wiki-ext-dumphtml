@@ -523,8 +523,6 @@ class DumpHTML {
 
 	/** Write the given text to the file identified by the given title object */
 	function writeArticle( $title, $text ) {
-		$profile = new ProfileSection( __METHOD__ );
-
 		$filename = $this->getHashedFilename( $title );
 
 		$fullName = "{$this->dest}/$filename";
