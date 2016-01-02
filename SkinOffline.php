@@ -88,7 +88,13 @@ class SkinOffline extends SkinTemplate {
 			$hasMembers = $dbr->selectField( 'categorylinks', '1', 
 				array( 'cl_to' => $nt->getDBkey() ), __METHOD__ );
 			if ( $hasMembers ) {
-				return $this->makeKnownLinkObj( $nt, $text, $query, $trail, $prefix );
+				return Linker::link(
+					$nt,
+					"$prefix$text",
+					array(),
+					wfCgiToArray( $query ),
+					array( 'known', 'noclasses' )
+				) . $trail;
 			}
 		}
 
