@@ -638,7 +638,7 @@ class DumpHTML {
 		global $wgUploadPath, $wgLogo, $wgMaxCredits, $wgScriptPath;
 		global $wgHideInterlanguageLinks, $wgUploadDirectory, $wgThumbnailScriptPath;
 		global $wgEnableParserCache, $wgHooks, $wgServer;
-		global $wgRightsUrl, $wgRightsText, $wgCopyrightIcon, $wgEnableSidebarCache;
+		global $wgRightsUrl, $wgRightsText, $wgFooterIcons, $wgEnableSidebarCache;
 		global $wgGenerateThumbnailOnParse, $wgValidSkinNames, $wgFavicon;
 		global $wgDisableCounters;
 		global $wgLocalFileRepo, $wgForeignFileRepos;
@@ -652,7 +652,7 @@ class DumpHTML {
 			$this->oldArticlePath = wfExpandURL( $wgServer . $wgArticlePath, PROTO_CANONICAL );
 			$this->oldLogo = $wgLogo;
 			$this->oldRepoGroup = RepoGroup::singleton();
-			$this->oldCopyrightIcon = $wgCopyrightIcon;
+			$this->oldCopyrightIcon = $wgFooterIcons['copyright']['copyright'];
 			$this->oldScriptPath = $wgScriptPath;
 			$this->oldFavicon = $wgFavicon;
 			$wgValidSkinNames['offline'] = 'Offline';
