@@ -756,7 +756,7 @@ class DumpHTML {
 			$urlText = $m[1];
 			$url = Sanitizer::decodeCharReferences( $urlText );
 			$url = $this->makeUrlSnapshot( $url );
-			$wgCopyrightIcon = str_replace( $urlText, htmlspecialchars( $url ), $this->oldCopyrightIcon);
+			$wgFooterIcons['copyright']['copyright'] = str_replace( $urlText, htmlspecialchars( $url ), $this->oldCopyrightIcon);
 		}
 
 		# Make a snapshot of the favicon
