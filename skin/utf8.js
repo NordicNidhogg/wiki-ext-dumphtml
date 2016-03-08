@@ -42,25 +42,25 @@ function _from_utf8(s) {
   var c, d = "", flag = 0, tmp;
   for (var i = 0; i < s.length; i++) {
     c = s.charCodeAt(i);
-    if (flag == 0) {
-      if ((c & 0xe0) == 0xe0) {
+    if (flag === 0) {
+      if ((c & 0xe0) === 0xe0) {
         flag = 2;
         tmp = (c & 0x0f) << 12;
-      } else if ((c & 0xc0) == 0xc0) {
+      } else if ((c & 0xc0) === 0xc0) {
         flag = 1;
         tmp = (c & 0x1f) << 6;
-      } else if ((c & 0x80) == 0) {
+      } else if ((c & 0x80) === 0) {
         d += s.charAt(i);
       } else {
         flag = 0;
       }
-    } else if (flag == 1) {
+    } else if (flag === 1) {
       flag = 0;
       d += String.fromCharCode(tmp | (c & 0x3f));
-    } else if (flag == 2) {
+    } else if (flag === 2) {
       flag = 3;
       tmp |= (c & 0x3f) << 6;
-    } else if (flag == 3) {
+    } else if (flag === 3) {
       flag = 0;
       d += String.fromCharCode(tmp | (c & 0x3f));
     } else {

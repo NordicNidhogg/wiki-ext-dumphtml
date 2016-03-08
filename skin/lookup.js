@@ -3,7 +3,8 @@
  */
 function goToStatic(depth) {
 	var url = getStaticURL(document.getElementById("searchInput").value, depth);
-	if (url != "") {
+	var alert;
+	if (url !== "") {
 		location = url;
 	} else {
 		alert("Invalid title");
@@ -15,7 +16,7 @@ function goToStatic(depth) {
  */
 function getStaticURL(text, depth) {
 	var pdbk = getPDBK(text);
-	if (pdbk == "") {
+	if (pdbk === "") {
 		return "";
 	} else {
 		var i;
@@ -47,6 +48,8 @@ function getHashedDirectory(pdbk, depth) {
 	// Find the first colon if there is one, use characters after it
 	var dbk = pdbk.replace(/^[^:]*:_*(.*)$/, "$1");
 	var i, c, dir = "";
+	var cc;
+	var binl2hex;
 
 	for (i=0; i < depth; i++) {
 		if (i) {
@@ -75,13 +78,15 @@ function ucfirst(s) {
 function getFriendlyName(name) {
 	// Replace illegal characters for Windows paths with underscores
 	var friendlyName = name.replace(/[\/\\*?"<>|~]/g, "_");
+	var hex_md5;
+	var _to_utf8;
 
 	// Work out lower case form. We assume we're on a system with case-insensitive
 	// filenames, so unless the case is of a special form, we have to disambiguate
 	var lowerCase = ucfirst(name.toLowerCase());
 
 	// Make it mostly unique
-	if (lowerCase != friendlyName) {
+	if (lowerCase !== friendlyName) {
 		friendlyName += "_" + hex_md5(_to_utf8(name)).substring(0, 4);
 	}
 	// Handle colon specially by replacing it with tilde
