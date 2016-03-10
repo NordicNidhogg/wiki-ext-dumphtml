@@ -951,7 +951,9 @@ ENDTEXT;
 		global $wgContLang, $wgArticlePath;
 
 		$iw = $title->getInterwiki();
-		if ( $title->isExternal() && $wgContLang->getLanguageName( $iw ) ) {
+		if ( $title->isExternal() &&
+			Language::fetchLanguageName( $iw, $wgContLang->getCode() )
+		) {
 			if ( $title->getDBkey() == '' ) {
 				$url = str_replace( '$1', "../$iw/index.html", $wgArticlePath );
 			} else {
