@@ -128,7 +128,7 @@ if ( $options['special'] ) {
 } else {
 	print "Creating static HTML dump in directory $dest. \n";
 	$dbr = wfGetDB( DB_SLAVE );
-	$server = $dbr->getProperty( 'mServer' );
+	$server = $dbr->getServer();
 	print "Using database {$server}\n";
 
 	if ( !isset( $options['e'] ) ) {
