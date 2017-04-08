@@ -305,7 +305,7 @@ class DumpHTML {
 						$this->setCheckpoint( 'local image', $row->img_name );
 					}
 				}
-				$title = Title::makeTitle( NS_IMAGE, $row->img_name );
+				$title = Title::makeTitle( NS_FILE, $row->img_name );
 				if ( $title->getArticleID() ) {
 					// Already done by dumpHTML
 					continue;
@@ -352,7 +352,7 @@ class DumpHTML {
 						print "$rel $i\r";
 					}
 
-					$title = Title::makeTitleSafe( NS_IMAGE, $file );
+					$title = Title::makeTitleSafe( NS_FILE, $file );
 					if ( !$title ) {
 						wfDebug( __METHOD__.": invalid title: $file\n" );
 						continue;
