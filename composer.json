@@ -6,7 +6,7 @@
 	},
 	"scripts": {
 		"test": [
-			"parallel-lint . --exclude vendor --exclude node_modules",
+			"parallel-lint . --exclude vendor --exclude node_modules -e php,inc",
 			"minus-x check ."
 		],
 		"fix": [

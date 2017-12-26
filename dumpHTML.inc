@@ -247,7 +247,10 @@ class DumpHTML {
 	{
 		// TODO it would be much nicer to do this during page generation
 		# post-process links because "File:" linking doesn't expose hooks.
-		$munge = create_function('$m', 'return $m["pre"].'.$this->mungeTitle->getMethod().'($m["rel"]).$m["post"];');
+		$method = $this->mungeTitle->getMethod();
+		$munge = function ( $m ) use ( $method ) {
+			return $m["pre"] . call_user_func( $method, $m["rel"] ) . $m["post"];
+		};
 		$text = preg_replace_callback('!(?<pre>src="[^"]*/?images/(archive|thumb|))(?<rel>[^"]+)(?<post>["])!Ui', $munge, $text);
 		// TODO image description page, thumbnails
 		return true;
